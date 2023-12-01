@@ -38,6 +38,7 @@ const ScrollableTabView = createReactClass({
   propTypes: {
     tabBarPosition: PropTypes.oneOf(['top', 'bottom', 'overlayTop', 'overlayBottom', ]),
     initialPage: PropTypes.number,
+    keyboardShouldPersistTaps: PropTypes.oneOf(['never', 'always', 'handled', ]),
     page: PropTypes.number,
     onChangeTab: PropTypes.func,
     onScroll: PropTypes.func,
@@ -64,6 +65,7 @@ const ScrollableTabView = createReactClass({
       contentProps: {},
       scrollWithoutAnimation: false,
       locked: false,
+      style:{},
       prerenderingSiblingsNumber: 0,
     };
   },
@@ -121,7 +123,7 @@ const ScrollableTabView = createReactClass({
       this.updateSceneKeys({ page: this.state.currentPage, children: this.props.children, });
     }
 
-    if (this.props.page >= 0 && this.props.page !== this.state.currentPage) {
+    if (this.props.page !== prevProps.page && this.props.page >= 0 && this.props.page !== this.state.currentPage) {
       this.goToPage(this.props.page);
     }
   },
@@ -247,6 +249,7 @@ const ScrollableTabView = createReactClass({
         directionalLockEnabled
         alwaysBounceVertical={false}
         keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps={this.props.keyboardShouldPersistTaps || 'never'}
         {...this.props.contentProps}
       >
           {scenes}
@@ -259,6 +262,7 @@ const ScrollableTabView = createReactClass({
         initialPage={this.props.initialPage}
         onPageSelected={this._updateSelectedPage}
         keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps={this.props.keyboardShouldPersistTaps || 'never'}
         scrollEnabled={!this.props.locked}
         onPageScroll={Animated.event(
           [{
@@ -386,10 +390,14 @@ const ScrollableTabView = createReactClass({
       tabBarProps.textStyle = this.props.tabBarTextStyle;
     }
     if (this.props.tabBarUnderlineStyle) {
-      tabBarProps.underlineStyle = this.props.tabBarUnderlineStyle;
+      tabBarProps.tabBarUnderlineStyle = this.props.tabBarUnderlineStyle
+    }
+    if (this.props.style) {
+      tabBarProps.style = this.props.style;
     }
     if (overlayTabs) {
       tabBarProps.style = {
+         ...tabBarProps.style,
         position: 'absolute',
         left: 0,
         right: 0,
